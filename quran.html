@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قورئانی پیرۆز - گەڕانی پێشکەوتوو</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+    
+    <style>
+        @font-face {
+            font-family: 'UniMahan';
+            src: url('UniMahanBilal.ttf?v=1.1') format('truetype');
+        }
+
+        body {
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; padding: 15px; background-color: #000;
+            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                              radial-gradient(at 100% 100%, hsla(150,49%,15%,1) 0, transparent 50%);
+            background-attachment: fixed; font-family: 'UniMahan', sans-serif; color: white;
+        }
+
+        .header-mini {
+            width: 95%; max-width: 450px; background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px; padding: 10px 18px; display: flex;
+            justify-content: space-between; align-items: center; margin-bottom: 15px;
+        }
+
+        .controls { width: 95%; max-width: 450px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        
+        /* فۆنتی یونیمەهان بۆ بۆکسەکان */
+        select, .search-box {
+            width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.05);
+            color: #fff; border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 15px; font-family: 'UniMahan', sans-serif; 
+            font-size: 1rem; outline: none; box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        .search-box:focus { border-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+
+        /* بەشی ئەنجامەکانی گەڕان */
+        #search-results-panel {
+            width: 95%; max-width: 500px; background: rgba(10, 10, 10, 0.98);
+            border: 1px solid #10b981; border-radius: 15px; margin-bottom: 20px;
+            display: none; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+
+        .result-item {
+            padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; transition: 0.2s;
+        }
+
+        .result-item:hover { background: rgba(16, 185, 129, 0.15); }
+        .result-meta { font-size: 0.85rem; color: #10b981; margin-bottom: 5px; font-weight: bold; }
+        .result-text { font-size: 0.95rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'UniMahan'; }
+
+        /* ستایلی ئایەتەکان */
+        #quran-container { width: 100%; max-width: 650px; }
+        .ayah-card {
+            background: rgba(255, 255, 255, 0.04); margin-bottom: 15px;
+            padding: 20px; border-radius: 15px; border-right: 4px solid #10b981;
+            transition: all 0.5s ease;
+        }
+
+        .active-ayah { 
+            border-right: 4px solid #0ff; 
+            background: rgba(0, 255, 255, 0.1); 
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .arabic { font-size: 1.7rem; color: #10b981; text-align: right; line-height: 2; font-family: 'Amiri', serif; }
+        .kurdish { font-size: 1.1rem; color: #ddd; text-align: justify; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; font-family: 'UniMahan'; }
+
+        .highlight { background-color: rgba(16, 185, 129, 0.5); color: #fff; padding: 0 3px; border-radius: 4px; }
+        .back-btn { color: #fff; text-decoration: none; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .bismillah { font-family: 'Amiri', serif; font-size: 2rem; color: #10b981; text-align: center; margin: 25px 0; }
+        .loading { display: none; color: #10b981; margin: 20px; font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header-mini">
+        <div class="right-side" style="display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-book quran-header-icon"></i>
+            <span style="font-weight:bold;">تەفسیری ئاسان</span>
+        </div>
+        <a href="home.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+    </div>
+
+    <div class="controls">
+        <select id="surah-select" onchange="fetchSurah(this.value)">
+            <option value="">سورەتێک هەڵبژێرە...</option>
+        </select>
+        <input type="text" id="search-input" class="search-box" placeholder="بە عەرەبی یان کوردی بگەڕێ..." oninput="handleSearch()">
+    </div>
+
+    <div id="search-results-panel">
+        <div id="results-header" style="color:#10b981; font-size:0.9rem; margin-bottom:10px; border-bottom:1px solid #10b981; padding-bottom:5px;"></div>
+        <div id="results-list"></div>
+    </div>
+
+    <div id="loading" class="loading"><i class="fas fa-circle-notch fa-spin"></i></div>
+    <div id="quran-container"></div>
+
+    <script>
+        let allAyahs = [];
+
+        async function loadSurahs() {
+            try {
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const data = await res.json();
+                const select = document.getElementById('surah-select');
+                data.data.forEach(surah => {
+                    let option = document.createElement('option');
+                    option.value = surah.number;
+                    option.text = `${surah.number}. ${surah.name}`;
+                    select.appendChild(option);
+                });
+            } catch (e) { console.error("Error loading surahs"); }
+        }
+
+        async function fetchSurah(surahNumber) {
+            if (!surahNumber) return;
+            const container = document.getElementById('quran-container');
+            const loader = document.getElementById('loading');
+            const panel = document.getElementById('search-results-panel');
+            document.getElementById('search-input').value = '';
+            panel.style.display = 'none';
+            container.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const [ar, ku] = await Promise.all([
+                    fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}`),
+                    fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ku.asan`)
+                ]);
+                const arData = await ar.json();
+                const kuData = await ku.json();
+                loader.style.display = 'none';
+
+                allAyahs = arData.data.ayahs.map((a, i) => ({
+                    number: a.numberInSurah,
+                    arabic: a.text,
+                    kurdish: kuData.data.ayahs[i].text
+                }));
+
+                renderAyahs(allAyahs, surahNumber);
+            } catch (e) { loader.style.display = 'none'; alert("کێشەیەک لە هێنانی سورەتەکە هەیە"); }
+        }
+
+        function renderAyahs(ayahs, surahNum, highlight = "") {
+            const container = document.getElementById('quran-container');
+            container.innerHTML = '';
+            if (surahNum != 1 && surahNum != 9) {
+                container.innerHTML = `<div class="bismillah">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</div>`;
+            }
+
+            ayahs.forEach((ayah, i) => {
+                let ar = ayah.arabic;
+                if (surahNum != 1 && surahNum != 9 && i === 0) ar = ar.replace("بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ", "").trim();
+                
+                let displayAr = ar;
+                let displayKu = ayah.kurdish;
+
+                if (highlight) {
+                    const reg = new RegExp(`(${highlight})`, 'gi');
+                    displayAr = displayAr.replace(reg, `<span class="highlight">$1</span>`);
+                    displayKu = displayKu.replace(reg, `<span class="highlight">$1</span>`);
+                }
+
+                const div = document.createElement('div');
+                div.className = 'ayah-card';
+                div.id = `ayah-${ayah.number}`;
+                div.innerHTML = `
+                    <div class="arabic">${displayAr} <span style="font-size:1.1rem; opacity:0.5;">﴿${ayah.number}﴾</span></div>
+                    <div class="kurdish">${displayKu}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function handleSearch() {
+            const term = document.getElementById('search-input').value.trim();
+            const panel = document.getElementById('search-results-panel');
+            const list = document.getElementById('results-list');
+            const header = document.getElementById('results-header');
+            const surahNum = document.getElementById('surah-select').value;
+
+            if (!term || !surahNum) { panel.style.display = 'none'; return; }
+
+            // گەڕان لە هەردوو دەقی عەرەبی و کوردی
+            const filtered = allAyahs.filter(a => 
+                a.arabic.toLowerCase().includes(term.toLowerCase()) || 
+                a.kurdish.toLowerCase().includes(term.toLowerCase())
+            );
+
+            panel.style.display = 'block';
+            header.innerText = `ئەنجامە دۆزراوەکان: ${filtered.length}`;
+            list.innerHTML = '';
+
+            filtered.forEach(a => {
+                const isKurdishMatch = a.kurdish.includes(term);
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <div class="result-meta">ئایەتی (${a.number})</div>
+                    <div class="result-text">${isKurdishMatch ? a.kurdish : a.arabic}</div>
+                `;
+                item.onclick = () => {
+                    panel.style.display = 'none';
+                    renderAyahs(allAyahs, surahNum, term); // هایلایت کردنی وشەکە لە هەموو شوێنێک
+                    const target = document.getElementById(`ayah-${a.number}`);
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    target.classList.add('active-ayah');
+                    setTimeout(() => target.classList.remove('active-ayah'), 3000);
+                };
+                list.appendChild(item);
+            });
+        }
+
+        loadSurahs();
+    </script>
+</body>
+</html>
