@@ -4,69 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>وێبسایتی ڕاید عبدالله</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* ناساندنی فۆنتی تایبەت */
+        /* ناساندنی فۆنتە تایبەتەکە */
         @font-face {
             font-family: 'UniMahan';
-            src: url('UniMahanBilal.ttf') format('truetype');
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
+            /* زیادکردنی ?v=1 بۆ ئەوەی یەکسەر نوێ ببێتەوە */
+            src: url('UniMahanBilal.ttf?v=1.1') format('truetype');
         }
 
         body {
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* باکگراوند بە دوو ڕەنگی دارک و جوانی میتۆدی */
-            background: radial-gradient(circle at center, #1a1a2e 0%, #0a0a0a 100%);
-            font-family: 'UniMahan', 'Segoe UI', Tahoma, sans-serif;
+            /* باکگراوندی تێکەڵ (Gradient) */
+            background: radial-gradient(circle at center, #111122 0%, #050505 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
             overflow: hidden; /* ڕێگری لە سکڕۆڵ */
         }
 
         .main-card {
-            width: 90%;
-            max-width: 400px;
-            padding: 30px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 20px;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
-            animation: fadeIn 1s ease-in;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(0, 255, 255, 0.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* بەشی پڕۆفایل و بازنەی نیۆن */
         .profile-wrapper {
             position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 15px;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 25px;
         }
 
         .profile-img {
-            width: 100px;
-            height: 100px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             object-fit: cover;
             position: absolute;
             top: 10px;
             left: 10px;
             z-index: 2;
+            border: 2px solid #0ff;
         }
 
         .neon-ring {
@@ -74,50 +68,78 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            border: 2px solid transparent;
-            border-top: 2px solid #00f2fe;
-            border-bottom: 2px solid #4facfe;
-            animation: rotate 4s linear infinite;
+            border: 3px solid transparent;
+            border-top: 3px solid #0ff;
+            border-bottom: 3px solid #f0f;
+            animation: rotateRing 3s linear infinite;
+            filter: drop-shadow(0 0 8px #0ff);
         }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes rotateRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        h1 { font-size: 1.5rem; margin: 10px 0; font-weight: normal; }
-        .subtitle { color: #ccc; font-size: 0.9rem; margin-bottom: 25px; }
+        /* بەکارهێنانی فۆنتەکە تەنها بۆ ناونیشانەکان */
+        .kurdish-font {
+            font-family: 'UniMahan', serif;
+        }
 
-        /* ستایلی جیاواز بۆ هەر لینکێک */
-        .links-container { display: flex; flex-direction: column; gap: 12px; }
+        h1 {
+            font-size: 1.8rem;
+            margin: 10px 0;
+            color: #fff;
+            text-shadow: 0 0 10px #0ff;
+            font-weight: normal;
+        }
+
+        .subtitle {
+            color: #0ff;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            letter-spacing: 0;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
         .link-item {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            border-radius: 12px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
             text-decoration: none;
             color: #fff;
-            transition: 0.3s;
-            border: 1px solid transparent;
+            transition: 0.4s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* ڕەنگی تایبەت بە هەر بوارێک بە کاڵی */
-        .fb { background: rgba(24, 119, 242, 0.15); border-color: rgba(24, 119, 242, 0.3); }
-        .tg { background: rgba(0, 136, 204, 0.15); border-color: rgba(0, 136, 204, 0.3); }
-        .mail { background: rgba(234, 67, 53, 0.15); border-color: rgba(234, 67, 53, 0.3); }
-        .phone { background: rgba(52, 211, 153, 0.15); border-color: rgba(52, 211, 153, 0.3); }
+        /* ڕەنگی جیاواز و کاڵ بۆ هەر لینکێک */
+        .fb { background: rgba(24, 119, 242, 0.1); border-color: rgba(24, 119, 242, 0.3); }
+        .tg { background: rgba(0, 136, 204, 0.1); border-color: rgba(0, 136, 204, 0.3); }
+        .mail { background: rgba(234, 67, 53, 0.1); border-color: rgba(234, 67, 53, 0.3); }
+        .phone { background: rgba(52, 211, 153, 0.1); border-color: rgba(52, 211, 153, 0.3); }
 
-        .link-item:hover { transform: scale(1.03); background: rgba(255, 255, 255, 0.1); }
+        .link-item i {
+            font-size: 1.3rem;
+            margin-left: 15px;
+            width: 25px;
+        }
 
-        .link-item i { width: 30px; font-size: 1.2rem; margin-left: 10px; }
+        .link-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-        /* فووتەر */
         .footer {
-            position: absolute;
-            bottom: 20px;
+            margin-top: 25px;
             font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.3);
             letter-spacing: 1px;
         }
     </style>
@@ -127,37 +149,39 @@
     <div class="main-card">
         <div class="profile-wrapper">
             <div class="neon-ring"></div>
-            <img src="rayd1.png" alt="Rayd" class="profile-img">
+            <img src="rayd1.png?v=1.1" alt="Rayd" class="profile-img">
         </div>
 
-        <h1>ماڵپەڕی ڕاید عبدالله</h1>
-        <div class="subtitle">پەرەپێدەری ماڵپەر و وێب ئەپلیکەیشن</div>
+        <div class="kurdish-font">
+            <h1>ماڵپەڕی ڕاید عبدالله</h1>
+            <div class="subtitle">پەرەپێدەری ماڵپەر و وێب ئەپلیکەیشن</div>
+        </div>
 
         <div class="links-container">
             <a href="https://www.facebook.com/share/1B8nALEXEA/" class="link-item fb">
-                <i class="fab fa-facebook"></i>
+                <i class="fab fa-facebook-f" style="color: #1877f2;"></i>
                 <span>Facebook</span>
             </a>
 
             <a href="https://t.me/Abdulla_Kawa1" class="link-item tg">
-                <i class="fab fa-telegram"></i>
+                <i class="fab fa-telegram-plane" style="color: #0088cc;"></i>
                 <span>Telegram</span>
             </a>
 
             <a href="mailto:abdullarayd@gmail.com" class="link-item mail">
-                <i class="fas fa-envelope"></i>
+                <i class="fas fa-envelope" style="color: #ea4335;"></i>
                 <span>Gmail</span>
             </a>
 
             <a href="tel:07501814493" class="link-item phone">
-                <i class="fas fa-phone-alt"></i>
+                <i class="fas fa-phone" style="color: #34d399;"></i>
                 <span>07501814493</span>
             </a>
         </div>
-    </div>
 
-    <div class="footer">
-        raydabdulla @2026
+        <div class="footer">
+            raydabdulla @2026
+        </div>
     </div>
 
 </body>
