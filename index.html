@@ -54,6 +54,8 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 10;
+            /* زۆر گرنگە بۆ ئەوەی دوگمەی دەنگەکە نەشاردرێتەوە */
+            overflow: visible !important;
         }
 
         .profile-wrapper {
@@ -84,11 +86,50 @@
             border-top: 3px solid #0ff;
             border-bottom: 3px solid #f0f;
             animation: rotateRing 3s linear infinite;
+            filter: drop-shadow(0 0 8px #0ff);
         }
 
         @keyframes rotateRing {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .audio-control {
+    position: absolute !important;
+    top: 15px !important;
+    right: 9px !important; /* لێرە نرخەکەمان زۆر زیاد کرد تا بە زۆر دوور بکەوێتەوە */
+    left: auto !important;   /* دڵنیابوون لەوەی left کار ناکات */
+
+          
+            background: rgba(0, 255, 255, 0.15);
+            border: 1px solid #0ff;
+            border-radius: 50px;
+            padding: 6px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            white-space: nowrap;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            transition: 0.3s ease;
+        }
+
+        .audio-control:hover {
+            background: rgba(0, 255, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .audio-control i { color: #0ff; font-size: 0.9rem; }
+        .audio-control span { color: #fff; font-size: 0.75rem; font-family: 'UniMahan', sans-serif; }
+
+        .playing { animation: pulse 1.5s infinite; background: rgba(0, 255, 255, 0.4); }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px #0ff; }
+            50% { box-shadow: 0 0 20px #0ff; }
+            100% { box-shadow: 0 0 5px #0ff; }
         }
 
         .kurdish-font { font-family: 'UniMahan', serif; }
@@ -137,11 +178,23 @@
 
         .fade-out { opacity: 0; }
         .footer { margin-top: 25px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.3); }
+
+        /* ڕێکخستنی دوگمەکە بۆ مۆبایل */
+        @media (max-width: 450px) {
+            .audio-control { right: -5px; top: 75px; padding: 5px 10px; }
+        }
     </style>
 </head>
 <body>
 
+    <div id="youtube-player" style="display:none;"></div>
+
     <div class="main-card">
+        <div class="audio-control" onclick="toggleAudio()">
+            <i class="fas fa-volume-up" id="audio-icon"></i>
+            <span id="audio-status">گوێ بگرە</span>
+        </div>
+
         <div class="profile-wrapper">
             <div class="neon-ring"></div>
             <img src="rayd1.png?v=1.1" alt="Rayd" class="profile-img">
@@ -191,7 +244,46 @@
                 zikrElement.classList.remove("fade-out");
             }, 800);
         }
-        setInterval(changeZikr, 2000);
+        setInterval(changeZikr, 2500);
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        var isPlaying = false;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '0', width: '0', videoId: 'CxLFHBgrGMw',
+                events: { 'onStateChange': onPlayerStateChange }
+            });
+        }
+
+        function toggleAudio() {
+            if (!isPlaying) {
+                player.playVideo();
+                document.getElementById('audio-status').innerText = "دەوێستێت";
+                document.getElementById('audio-icon').className = "fas fa-pause";
+                document.querySelector('.audio-control').classList.add('playing');
+                isPlaying = true;
+            } else {
+                player.pauseVideo();
+                resetAudioBtn();
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) { resetAudioBtn(); }
+        }
+
+        function resetAudioBtn() {
+            document.getElementById('audio-status').innerText = "گوێ بگرە";
+            document.getElementById('audio-icon').className = "fas fa-volume-up";
+            document.querySelector('.audio-control').classList.remove('playing');
+            isPlaying = false;
+        }
     </script>
 </body>
 </html>
