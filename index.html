@@ -22,24 +22,28 @@
         }
 
         body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #000000;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 0% 100%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 100%, hsla(339,49%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 100%, hsla(253,16%,7%,1) 0, transparent 50%);
-            background-attachment: fixed;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-            overflow-x: hidden;
-        }
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* زیادکردنی پادینگ بۆ ئەوەی لە شاشە دەرنەچێت */
+    padding: 20px 0; 
+    background-color: #000000;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 0% 100%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 100%, hsla(339,49%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 100%, hsla(253,16%,7%,1) 0, transparent 50%);
+    background-attachment: fixed;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    /* گرنگە: نایەڵێت باکگراوندەکە بشێوێت کاتێک شتەکان درێژ دەبن */
+    overflow-y: auto; 
+}
+
 
         .main-card {
             position: relative;
@@ -163,7 +167,7 @@
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 25px;
-            min-height: 80px;
+            min-height: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -183,6 +187,54 @@
         @media (max-width: 450px) {
             .audio-control { right: -5px; top: 75px; padding: 5px 10px; }
         }
+        
+      
+.guest-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    /* ڕەنگەکان لێرە زیاد کراون و ڕووبەرەکەی گەورە کراوە بۆ جوڵە */
+    background: linear-gradient(-45deg, #6f4e37, #b5835a, #4e342e, #8d6e63);
+    background-size: 300% 300%; 
+    animation: gradientMove 4s ease infinite; /* ئەنیمەیشنی جوڵەی ڕەنگەکە */
+    
+    color: white;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    transition: 0.4s;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(111, 78, 55, 0.4);
+}
+
+/* ئەنیمەیشنی جوڵانی ڕەنگەکانی باکگراوند */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.guest-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(111, 78, 55, 0.6);
+}
+
+/* ئەنیمەیشنی هەڵمی قاوەکە (جوڵەیەکی بچووک بۆ ئایکۆنەکە) */
+.guest-btn i {
+    font-size: 1.3rem;
+    color: #fff;
+    animation: coffeeBounce 2s infinite;
+}
+
+@keyframes coffeeBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+
     </style>
 </head>
 <body>
@@ -208,6 +260,12 @@
         <div class="zikr-container">
             <div id="zikr-text">لَا إِلَهَ إِلَّا اللَّهُ</div>
         </div>
+        
+        <a href="home.html" class="guest-btn kurdish-font">
+    <i class="fas fa-coffee"></i>
+    <span>میوانبە...</span>
+</a>
+
 
         <div class="links-container">
             <a href="https://www.facebook.com/share/1B8nALEXEA/" class="link-item fb">
@@ -291,7 +349,7 @@
 
             // کاتێک ڤیدیۆکە بە فەرمی دەستی پێکرد (Playing)
             if (event.data == YT.PlayerState.PLAYING) {
-                statusText.innerText = "وەستاندن";
+                statusText.innerText = "دەوێستێت";
                 icon.className = "fas fa-pause";
                 document.querySelector('.audio-control').classList.add('playing');
             }
