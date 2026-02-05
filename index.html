@@ -246,7 +246,7 @@
         }
         setInterval(changeZikr, 2500);
 
-        var tag = document.createElement('script');
+                var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
@@ -257,16 +257,27 @@
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
                 height: '0', width: '0', videoId: 'CxLFHBgrGMw',
-                events: { 'onStateChange': onPlayerStateChange }
+                events: { 
+                    'onStateChange': onPlayerStateChange,
+                    'onReady': onPlayerReady 
+                }
             });
         }
 
+        function onPlayerReady(event) {
+            // کاتێک یاریزانەکە ئامادە بوو
+        }
+
         function toggleAudio() {
+            const statusText = document.getElementById('audio-status');
+            const icon = document.getElementById('audio-icon');
+
             if (!isPlaying) {
+                // لێرە نوسینەکە دەگۆڕێت بۆ چاوەڕوانبە
+                statusText.innerText = "چاوەڕوانبە...";
+                icon.className = "fas fa-spinner fa-spin"; // ئایکۆنەکە دەخولێتەوە
+                
                 player.playVideo();
-                document.getElementById('audio-status').innerText = "دەوێستێت";
-                document.getElementById('audio-icon').className = "fas fa-pause";
-                document.querySelector('.audio-control').classList.add('playing');
                 isPlaying = true;
             } else {
                 player.pauseVideo();
@@ -275,7 +286,19 @@
         }
 
         function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.ENDED) { resetAudioBtn(); }
+            const statusText = document.getElementById('audio-status');
+            const icon = document.getElementById('audio-icon');
+
+            // کاتێک ڤیدیۆکە بە فەرمی دەستی پێکرد (Playing)
+            if (event.data == YT.PlayerState.PLAYING) {
+                statusText.innerText = "دەوێستێت";
+                icon.className = "fas fa-pause";
+                document.querySelector('.audio-control').classList.add('playing');
+            }
+            
+            if (event.data == YT.PlayerState.ENDED) { 
+                resetAudioBtn(); 
+            }
         }
 
         function resetAudioBtn() {
@@ -284,6 +307,7 @@
             document.querySelector('.audio-control').classList.remove('playing');
             isPlaying = false;
         }
+
     </script>
 </body>
 </html>
