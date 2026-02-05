@@ -16,7 +16,7 @@
             src: url('UniMahanBilal.ttf?v=1.1') format('truetype');
         }
 
-        body {
+                        body {
             margin: 0;
             padding: 20px;
             display: flex;
@@ -24,12 +24,44 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* باکگراوندی تێکەڵ (Gradient) */
-            background: radial-gradient(circle at center, #111122 0%, #050505 100%);
+            /* باکگراوندێکی Mesh Gradient ی ناوازە */
+            background-color: #000000;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 0% 100%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 100%, hsla(339,49%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(253,16%,7%,1) 0, transparent 50%);
+            background-attachment: fixed;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            overflow: hidden; /* ڕێگری لە سکڕۆڵ */
+            overflow: hidden;
+            animation: backgroundMove 10s ease infinite alternate;
         }
+
+        /* ئەنیمەیشنی جوڵەی هێواشی ڕەنگەکانی پشتەوە */
+        @keyframes backgroundMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* جوانکاری زیاتر بۆ کارتەکە (Glassmorphism) */
+        .main-card {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.03); /* زۆر شەفاف */
+            backdrop-filter: blur(25px); /* لێڵکردنی پشتەوە وەک شووشە */
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
 
         .main-card {
             position: relative;
