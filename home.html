@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماڵەوە - ڕاید عبدالله</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @font-face {
+            font-family: 'UniMahan';
+            src: url('UniMahanBilal.ttf?v=1.1') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px; 
+            background-color: #000000;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 0% 100%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 100%, hsla(339,49%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(253,16%,7%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            font-family: 'UniMahan', sans-serif;
+            color: white;
+        }
+
+        /* لاکێشەی سەرەوە */
+        .header-mini {
+            width: 95%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 10px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            margin-top: 10px;
+        }
+
+        .right-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .home-icon {
+            font-size: 1.3rem;
+            color: #0ff;
+            filter: drop-shadow(0 0 5px #0ff);
+        }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+        }
+
+        .back-btn {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #0ff;
+            transform: translateX(-3px);
+        }
+
+        /* ستایلی بەتنی قورئان */
+        .quran-container {
+            width: 95%;
+            max-width: 450px;
+            margin-top: 30px;
+        }
+
+        .quran-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            padding: 16px 20px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 18px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        .quran-btn:hover {
+            transform: translateY(-4px);
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .quran-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quran-icon {
+            font-size: 1.4rem;
+            color: #10b981;
+            filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.5));
+        }
+
+        .quran-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.85); /* ڕەنگێکی سپی ئارام */
+        }
+
+        .arrow-icon {
+            color: rgba(16, 185, 129, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .content-placeholder {
+            margin-top: 25px;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+        
+        
+        
+        /* ستایلی کۆنتێنەری AI */
+.ai-container {
+    width: 95%;
+    max-width: 450px;
+    margin-top: 15px;
+}
+
+.ai-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    padding: 16px 20px;
+    /* ڕەنگێکی مۆری تەڵخ بۆ جیاکردنەوە لە قورئان */
+    background: rgba(139, 92, 246, 0.1); 
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    transition: all 0.4s ease;
+}
+
+.ai-btn:hover {
+    transform: translateY(-4px);
+    background: rgba(139, 92, 246, 0.18);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+}
+
+.ai-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ai-icon {
+    font-size: 1.4rem;
+    color: #a78bfa; /* ڕەنگی مۆری کاڵ */
+    filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.5));
+}
+
+.ai-text {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.arrow-icon {
+    color: rgba(139, 92, 246, 0.6);
+    font-size: 0.9rem;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="header-mini">
+        <div class="right-side">
+            <i class="fas fa-home home-icon"></i>
+            <span class="welcome-text">بەخێرهاتی</span>
+        </div>
+        
+        <a href="index.html" class="back-btn" title="گەڕانەوە">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+    </div>
+
+    <div class="quran-container">
+        <a href="quran.html" class="quran-btn">
+            <div class="quran-content">
+                <i class="fas fa-book quran-icon"></i>
+                <span class="quran-text">قورئانی پیرۆز</span>
+            </div>
+            <i class="fas fa-chevron-left arrow-icon"></i>
+        </a>
+    </div>
+    
+
+
+<div class="ai-container">
+    <a href="word-game.html" class="ai-btn">
+        <div class="ai-content">
+            <i class="fas fa-gamepad ai-icon"></i> <span class="ai-text">یاری وشەکان (ئۆنلاین)</span>
+        </div>
+        <i class="fas fa-chevron-left arrow-icon"></i>
+    </a>
+</div>
+
+
+    <div class="content-placeholder">
+        <p>چاوەڕوانی جیاوازتربن پشت بە خوا</p>
+    </div>
+
+</body>
+</html>
