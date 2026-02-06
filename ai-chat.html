@@ -2,7 +2,7 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ژیری دەستکرد - ڕاید عبدالله</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -17,8 +17,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* چاککردنی بەرزی شاشە بۆ مۆبایل */
             height: 100vh;
-            padding: 15px; 
+            height: -webkit-fill-available;
+            padding: 0 15px; 
             background-color: #000000;
             background-image: 
                 radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
@@ -30,10 +32,9 @@
             background-attachment: fixed;
             font-family: 'UniMahan', sans-serif;
             color: white;
-            overflow: hidden; /* ڕێگری لە سکڕۆڵی دەرەکی */
+            overflow: hidden; 
         }
 
-        /* هێدەر ڕێک وەک home.html */
         .header-mini {
             width: 95%;
             max-width: 450px;
@@ -47,7 +48,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            margin-top: 10px;
+            margin-top: 15px;
+            flex-shrink: 0; /* ڕێگری لە بچووکبوونەوەی هێدەر */
             box-sizing: border-box;
         }
 
@@ -93,7 +95,6 @@
         .back-btn:hover { background: rgba(255, 255, 255, 0.2); color: #a78bfa; }
         .clear-btn:hover { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
-        /* سندوقی چات - فیت و سەنتەر */
         #chat-container {
             flex: 1;
             width: 95%;
@@ -103,10 +104,11 @@
             background: rgba(255, 255, 255, 0.03);
             border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: 20px;
+            margin-top: 15px;
             margin-bottom: 15px;
             overflow: hidden;
             box-sizing: border-box;
+            min-height: 0; /* گرنگە بۆ ئەوەی ناوەڕۆکەکە فیت بێت */
         }
 
         #chat-box {
@@ -116,6 +118,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            scrollbar-width: none;
         }
 
         #chat-box::-webkit-scrollbar { display: none; }
@@ -145,15 +148,15 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-.input-area {
-    padding: 12px;
-    display: flex;
-    flex-direction: row-reverse; /* ئەم دێڕە دوگمەکە و تێکست بۆکسەکە پێچەوانە دەکاتەوە */
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.05);
-    align-items: center;
-}
-
+        .input-area {
+            padding: 12px;
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            align-items: center;
+            flex-shrink: 0; /* بۆ ئەوەی لە مۆبایل ون نەبێت */
+        }
 
         #user-input {
             flex: 1;
@@ -176,6 +179,9 @@
             height: 45px;
             cursor: pointer;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .typing {
@@ -209,7 +215,7 @@
 
     <div id="chat-container">
         <div id="chat-box"></div>
-        <div id="status" class="typing">خەریکی وەڵامدانەوەیە...</div>
+        <div id="status" class="typing">خەریکی بیرکردنەوەیە...</div>
         <div class="input-area">
             <input type="text" id="user-input" placeholder="پرسیار بکە..." autocomplete="off">
             <button id="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
@@ -247,19 +253,24 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text + " (وەڵامەکەت بە زمانی کوردی سۆرانی بێت بە شێوەیەکی پوخت)" }] }]
+                        contents: [{ parts: [{ text: text + " (تکایە بە زمانی کوردی سۆرانی وەڵام بدەوە بە شێوەیەکی کورت و پوخت)" }] }]
                     })
                 });
 
                 const data = await response.json();
-                const aiResponse = data.candidates[0].content.parts[0].text;
-
-                status.style.display = 'none';
-                addMessage('ai', aiResponse);
+                
+                if (data.candidates && data.candidates[0].content) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    status.style.display = 'none';
+                    addMessage('ai', aiResponse);
+                } else {
+                    throw new Error('Invalid response');
+                }
 
             } catch (error) {
+                console.error(error);
                 status.style.display = 'none';
-                addMessage('ai', 'ببورە، کێشەیەک لە پەیوەندی دروست بوو.');
+                addMessage('ai', 'ببورە، کێشەیەک ڕوویدا لە وەرگرتنی وەڵام. دڵنیابەوە لە ئینتەرنێتەکەت.');
             }
         }
 
