@@ -27,7 +27,6 @@
             overflow: hidden; 
         }
 
-        /* هێدەر */
         .header-mini {
             width: 95%; max-width: 450px;
             background: rgba(255, 255, 255, 0.07);
@@ -49,10 +48,7 @@
             background: rgba(255, 255, 255, 0.1); border-radius: 10px; transition: 0.3s;
             border: none; cursor: pointer;
         }
-        .back-btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .clear-btn:hover { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
-        /* سندوقی چات */
         #chat-container {
             flex: 1; width: 95%; max-width: 450px;
             display: flex; flex-direction: column;
@@ -73,21 +69,9 @@
             line-height: 1.6; font-size: 0.95rem; animation: fadeIn 0.3s ease;
             word-wrap: break-word;
         }
-        /* نامەی بەکارهێنەر لای ڕاست */
-        .user-msg { 
-            align-self: flex-start; 
-            background: linear-gradient(135deg, #7c3aed, #6d28d9); 
-            border-bottom-right-radius: 4px; 
-        }
-        /* نامەی AI لای چەپ */
-        .ai-msg { 
-            align-self: flex-end; 
-            background: rgba(255, 255, 255, 0.08); 
-            border-bottom-left-radius: 4px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
+        .user-msg { align-self: flex-start; background: linear-gradient(135deg, #7c3aed, #6d28d9); border-bottom-right-radius: 4px; }
+        .ai-msg { align-self: flex-end; background: rgba(255, 255, 255, 0.08); border-bottom-left-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.1); }
 
-        /* بەشی ناردن */
         .input-area {
             padding: 10px; display: flex; flex-direction: row-reverse; gap: 8px;
             background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(10px);
@@ -97,16 +81,13 @@
         #user-input {
             flex: 1; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(167, 139, 250, 0.3);
             border-radius: 12px; padding: 12px; color: white; font-family: 'UniMahan'; outline: none;
-            font-size: 0.95rem;
         }
 
         #send-btn {
             background: #7c3aed; color: white; border: none; border-radius: 12px;
             width: 45px; height: 45px; cursor: pointer; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
         }
-        #send-btn:active { transform: scale(0.9); }
 
         .status-msg { font-size: 0.8rem; color: #a78bfa; margin-bottom: 5px; display: none; padding: 0 20px; text-align: center; }
 
@@ -136,11 +117,12 @@
     </div>
 
     <script>
+        // کلیل و ناونیشانی تازە کە دەبێت کار بکات
         const API_KEY = "AIzaSyDdCf_Axs5twzDHA-k69EVVwAQgbbIGz2w";
-        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
         const chatBox = document.getElementById('chat-box');
 
-        // بارکردنی چاتەکان لە LocalStorage
         window.onload = () => {
             const savedChat = localStorage.getItem('gemini_chat_history');
             if (savedChat) {
@@ -167,7 +149,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text + " (تکایە تەنها بە کوردی سۆرانی وەڵام بدەرەوە بە کورتی)" }] }]
+                        contents: [{ 
+                            parts: [{ text: text + " (وەڵام تەنها بە کوردی سۆرانی بێت)" }] 
+                        }]
                     })
                 });
 
@@ -175,10 +159,10 @@
                 status.style.display = 'none';
 
                 if (data.candidates && data.candidates[0].content) {
-                    const aiText = data.candidates[0].content.parts[0].text;
-                    addMessage('ai', aiText);
+                    addMessage('ai', data.candidates[0].content.parts[0].text);
                 } else if (data.error) {
-                    addMessage('ai', "ئیرۆر: " + data.error.message);
+                    // ئەگەر ئیرۆر هەبوو، لێرە پیشانی دەدات بۆ چارەسەر
+                    addMessage('ai', "هەڵەی سیستەم: " + data.error.message);
                 } else {
                     addMessage('ai', "ببورە، وەڵام وەرنەگیرا.");
                 }
@@ -194,22 +178,18 @@
             msgDiv.innerText = text;
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-            
-            // خەزنکردن بۆ ئەوەی دوای دەرچوون بمێنێتەوە
             localStorage.setItem('gemini_chat_history', chatBox.innerHTML);
         }
 
         function clearChat() {
-            if (confirm('ئایا دڵنیای لە سڕینەوەی هەموو چاتەکە؟')) {
+            if (confirm('چاتەکە بسڕدرێتەوە؟')) {
                 localStorage.removeItem('gemini_chat_history');
                 chatBox.innerHTML = '';
                 addMessage('ai', 'سڵاو! چۆن دەتوانم یارمەتیت بدەم؟');
             }
         }
 
-        document.getElementById('user-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+        document.getElementById('user-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
 </html>
