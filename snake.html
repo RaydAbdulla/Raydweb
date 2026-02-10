@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Snake Online Pro - ڕاید عبدالله</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @font-face { font-family: 'UniMahan'; src: url('UniMahanBilal.ttf') format('truetype'); }
+        * { box-sizing: border-box; touch-action: none; -webkit-user-select: none; }
+        
+        body {
+            margin: 0; background: #050505; font-family: 'UniMahan', sans-serif;
+            color: white; overflow: hidden; height: 100vh; width: 100vw;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #bg-pattern {
+            position: fixed; top: 0; left: 0; width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(124, 58, 237, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 58, 237, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -1; transform: translate(-25%, -25%);
+        }
+
+        #login-screen {
+            position: absolute; z-index: 100; background: rgba(10, 10, 10, 0.95);
+            padding: 30px; border-radius: 25px; border: 2px solid #7c3aed;
+            width: 85%; max-width: 380px; text-align: center;
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.5); backdrop-filter: blur(10px);
+        }
+
+        .input-box {
+            width: 100%; padding: 14px; margin: 10px 0;
+            background: #111; border: 1px solid #333;
+            border-radius: 12px; color: white; text-align: center; font-family: 'UniMahan';
+        }
+
+        .btn-start {
+            width: 100%; padding: 14px; background: #7c3aed;
+            border: none; border-radius: 12px; color: white;
+            font-weight: bold; cursor: pointer; font-family: 'UniMahan';
+        }
+
+        #game-container { display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        .top-ui {
+            position: absolute; top: 10px; width: 100%; padding: 0 10px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            pointer-events: none; z-index: 10;
+        }
+        
+        .player-list-container {
+            background: rgba(0,0,0,0.8); padding: 8px;
+            border-radius: 10px; border: 1px solid rgba(124, 58, 237, 0.3);
+            font-size: 10px; backdrop-filter: blur(5px);
+            width: 110px; display: flex; flex-direction: column; gap: 4px;
+        }
+
+        .player-entry {
+            display: flex; justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 2px 0; width: 100%;
+        }
+
+        #timer {
+            background: #111; border: 2px solid #ffeb3b; color: #ffeb3b;
+            padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 14px;
+        }
+
+        .my-stats {
+            background: rgba(0,255,204,0.1); padding: 5px 10px;
+            border-radius: 10px; border: 1px solid #00ffcc;
+            font-size: 11px; font-weight: bold;
+        }
+
+        /* گێڕی کاڵ و جوڵاو */
+        #joystick-area {
+            position: absolute; width: 100px; height: 100px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 50%; border: 1px solid rgba(124, 58, 237, 0.15);
+            display: none; align-items: center; justify-content: center;
+            pointer-events: none; z-index: 5;
+        }
+        #joystick-stick {
+            width: 40px; height: 40px; background: rgba(124, 58, 237, 0.3);
+            border-radius: 50%; box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div id="bg-pattern"></div>
+
+<div id="login-screen">
+    <h2 style="color:#a78bfa; margin:0 0 10px 0;">جیهانی کرمەکان</h2>
+    <div id="high-score-board" style="background: rgba(124,58,237,0.1); padding: 10px; border-radius: 15px; margin-bottom: 20px; border: 1px dashed #7c3aed;">
+        <i class="fas fa-crown" style="color:#ffeb3b;"></i> پاڵەوانی جیهان: <br>
+        <span id="best-player-name" style="color: #00ffcc; font-weight: bold;">چاوەڕوانبە...</span>
+    </div>
+    <input type="text" id="username" class="input-box" placeholder="ناوت بنوسە">
+    <input type="text" id="roomCode" class="input-box" placeholder="کۆدی ژوور">
+    <button class="btn-start" onclick="joinGame()">بەشداری بکە</button>
+</div>
+
+<div id="game-container">
+    <div class="top-ui">
+        <div class="player-list-container" id="player-list-ui"></div>
+        <div id="timer">01:00</div>
+        <div class="my-stats" id="my-score-ui">خاڵ: 0</div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="joystick-area">
+        <div id="joystick-stick"></div>
+    </div>
+</div>
+
+<script>
+    const eatSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    const dieSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDwHJWCbSQVyXSZXeJGqKQV-fcclrHbJXs",
+        authDomain: "snake-5bc86.firebaseapp.com",
+        projectId: "snake-5bc86",
+        databaseURL: "https://snake-5bc86-default-rtdb.firebaseio.com",
+        storageBucket: "snake-5bc86.firebasestorage.app",
+        messagingSenderId: "980955757417",
+        appId: "1:980955757417:web:fdb25d72a89b16d0e75bf8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let myName, myRoom, myKey;
+    let canvas, ctx;
+    let players = {}, foods = {};
+    let angle = Math.random() * Math.PI * 2;
+    let timeLeft = 60;
+    let canFight = false;
+    let isDead = false;
+
+    // Joystick Variables
+    let joyBase = document.getElementById('joystick-area');
+    let joyStick = document.getElementById('joystick-stick');
+    let isTouching = false;
+
+    db.ref('highScore').on('value', s => {
+        if(s.exists()) document.getElementById('best-player-name').innerText = `${s.val().name} (${s.val().score})`;
+    });
+
+    function joinGame() {
+        myName = document.getElementById('username').value.trim();
+        myRoom = document.getElementById('roomCode').value.trim();
+        if(!myName || !myRoom) return alert("ناو و کۆد بنوسە");
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
+        initGame();
+    }
+
+    function initGame() {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        resize();
+        window.addEventListener('resize', resize);
+
+        const playerRef = db.ref(`rooms/${myRoom}/players`).push();
+        myKey = playerRef.key;
+        playerRef.set({
+            name: myName, x: canvas.width/2, y: canvas.height/2,
+            score: 0, color: `hsl(${Math.random() * 360}, 80%, 60%)`,
+            history: [{x: canvas.width/2, y: canvas.height/2}],
+            alive: true
+        });
+        playerRef.onDisconnect().remove();
+
+        db.ref(`rooms/${myRoom}/players`).on('value', s => {
+            players = s.val() || {};
+            updateUI();
+            if(!players[myKey] && !isDead) gameOver("تۆ خورایت!");
+        });
+        
+        db.ref(`rooms/${myRoom}/foods`).on('value', s => foods = s.val() || {});
+
+        setInterval(() => {
+            if(!isDead && Object.keys(players)[0] === myKey && Object.keys(foods).length < 20) spawnFood();
+        }, 2000);
+
+        startTimer();
+        setupFloatingJoystick();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function setupFloatingJoystick() {
+        window.addEventListener('touchstart', e => {
+            if(isDead) return;
+            isTouching = true;
+            let t = e.touches[0];
+            joyBase.style.display = 'flex';
+            joyBase.style.left = (t.clientX - 50) + 'px';
+            joyBase.style.top = (t.clientY - 50) + 'px';
+        });
+
+        window.addEventListener('touchmove', e => {
+            if(!isTouching) return;
+            let t = e.touches[0];
+            let rect = joyBase.getBoundingClientRect();
+            let centerX = rect.left + 50;
+            let centerY = rect.top + 50;
+            let dx = t.clientX - centerX;
+            let dy = t.clientY - centerY;
+            angle = Math.atan2(dy, dx);
+            let dist = Math.min(30, Math.hypot(dx, dy));
+            joyStick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+        });
+
+        window.addEventListener('touchend', () => {
+            isTouching = false;
+            joyBase.style.display = 'none';
+            joyStick.style.transform = `translate(0, 0)`;
+        });
+    }
+
+    function updateUI() {
+        const listUI = document.getElementById('player-list-ui');
+        listUI.innerHTML = '';
+        let sorted = Object.values(players).sort((a, b) => b.score - a.score);
+        sorted.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'player-entry';
+            div.innerHTML = `<span>${p.name.substring(0,8)}</span><span style="color:#7c3aed">${p.score}</span>`;
+            listUI.appendChild(div);
+        });
+        if(players[myKey]) document.getElementById('my-score-ui').innerText = `خاڵ: ${players[myKey].score}`;
+    }
+
+    function spawnFood() {
+        db.ref(`rooms/${myRoom}/foods`).push({
+            x: Math.random() * (canvas.width - 40) + 20,
+            y: Math.random() * (canvas.height - 40) + 20,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        });
+    }
+
+    function startTimer() {
+        const tInt = setInterval(() => {
+            if(timeLeft > 0) {
+                timeLeft--;
+                document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+            } else {
+                canFight = true;
+                document.getElementById('timer').innerText = "کاتی شەڕە! 🔥";
+                document.getElementById('timer').style.color = "#ff4444";
+                clearInterval(tInt);
+            }
+        }, 1000);
+    }
+
+    function update() {
+        if(isDead || !players[myKey]) return;
+        let p = players[myKey];
+        let speed = 2.5;
+        
+        let newX = p.x + Math.cos(angle) * speed;
+        let newY = p.y + Math.sin(angle) * speed;
+
+        if(newX < 10) newX = 10; if(newX > canvas.width-10) newX = canvas.width-10;
+        if(newY < 10) newY = 10; if(newY > canvas.height-10) newY = canvas.height-10;
+
+        // Collision with food
+        Object.keys(foods).forEach(fid => {
+            let f = foods[fid];
+            if(Math.hypot(newX - f.x, newY - f.y) < 22) {
+                db.ref(`rooms/${myRoom}/foods/${fid}`).remove();
+                eatSound.play().catch(()=>{});
+                db.ref(`rooms/${myRoom}/players/${myKey}`).update({ score: p.score + 1 });
+            }
+        });
+
+        // Battle System (Kill Logic)
+        if(canFight) {
+            Object.keys(players).forEach(pk => {
+                if(pk === myKey) return;
+                let other = players[pk];
+                if(!other.history) return;
+                
+                // پشکنین: ئەگەر سەری من بەر جەستەی ئەو بکەوێت
+                other.history.forEach((seg) => {
+                    if(Math.hypot(newX - seg.x, newY - seg.y) < 15) {
+                        // ئەگەر خاڵەکانم زیاتربوو، ئەو دەمرێت
+                        if(p.score > other.score) {
+                            db.ref(`rooms/${myRoom}/players/${pk}`).remove();
+                            // زیادکردنی نیوەی خاڵەکانی ئەو بۆ من وەک دیاری
+                            db.ref(`rooms/${myRoom}/players/${myKey}`).update({ score: p.score + Math.floor(other.score/2) + 5 });
+                        } 
+                        // ئەگەر خاڵەکانم کەمتریاب یەکسان بوو، من دەمرم
+                        else {
+                            gameOver("تۆ خورایت لەلایەن " + other.name);
+                        }
+                    }
+                });
+            });
+        }
+
+        let history = p.history || [];
+        history.unshift({x: newX, y: newY});
+        if(history.length > 15 + (p.score * 2)) history.pop();
+
+        db.ref(`rooms/${myRoom}/players/${myKey}`).update({ x: newX, y: newY, history: history });
+    }
+
+    function gameOver(msg) {
+        isDead = true;
+        dieSound.play().catch(()=>{});
+        db.ref(`rooms/${myRoom}/players/${myKey}`).remove();
+        alert(msg);
+        location.reload();
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        Object.values(foods).forEach(f => {
+            ctx.fillStyle = f.color;
+            ctx.beginPath(); ctx.arc(f.x, f.y, 7, 0, Math.PI*2); ctx.fill();
+        });
+        Object.values(players).forEach(p => {
+            if(!p.history) return;
+            ctx.fillStyle = p.color;
+            p.history.forEach((pos, i) => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, i === 0 ? 13 : 10, 0, Math.PI*2);
+                ctx.fill();
+                if(i === 0) {
+                    ctx.fillStyle = "white";
+                    ctx.beginPath(); ctx.arc(pos.x+3, pos.y-3, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = "black";
+                    ctx.beginPath(); ctx.arc(pos.x+3, pos.y-3, 1.5, 0, Math.PI*2); ctx.fill();
+                }
+                ctx.fillStyle = p.color;
+            });
+        });
+    }
+
+    function gameLoop() {
+        if(!isDead) { update(); draw(); requestAnimationFrame(gameLoop); }
+    }
+</script>
+</body>
+</html>
